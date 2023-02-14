@@ -29,6 +29,8 @@ the value with KVM "tags":
 
     #define KVM_SYSREG_FROM_AARCH64(x)	((x) | KVM_REG_ARM64 | KVM_REG_ARM64_SYSREG | (KVM_REG_SIZE_U64))
 
+main.c is a show_case application.
+
 # Capbilities
 
 The info script extracts information from a single specification:
@@ -163,7 +165,38 @@ Currently this accessor is excluded (bad hack) from generation.
     <enc n="op2" v="0b000"/>
 </encoding>
 ```
+### AArch64-icv_ap1rn_el1.xml
 
+I believe there is a bug as accessors refer to ICC... register and not ICV...
+
+```xml
+<register_page>
+  <registers>
+  
+    <register execution_state="AArch64" is_register="True" is_internal="True" is_banked="False" is_stub_entry="False">
+      <reg_short_name>ICV_AP1R&lt;n&gt;_EL1</reg_short_name>
+        
+        <reg_long_name>Interrupt Controller Virtual Active Priorities Group 1 Registers</reg_long_name>
+
+
+<access_mechanism accessor="MRS ICC_AP1R&lt;m&gt;_EL1" type="SystemAccessor">
+            <encoding>
+                
+                <acc_array var="m">
+                    <acc_array_range>0-3</acc_array_range>
+                </acc_array>
+            <access_instruction>MRS &lt;Xt&gt;, ICC_AP1R&lt;m&gt;_EL1</access_instruction>
+                
+                <enc n="op0" v="0b11"/>
+                
+                <enc n="op1" v="0b000"/>
+                
+                <enc n="CRn" v="0b1100"/>
+                
+                <enc n="CRm" v="0b1001"/>
+                
+                <enc n="op2" v="0b0:m[1:0]"/>
+            </encoding>
 ### AArch64-amevtyper0n_el0.xml
 
 Define a range of 4 registers but define a 16 bit field to encode the index:
