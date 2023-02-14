@@ -63,7 +63,7 @@ For register templates, such as DBGBCR<m>_EL1, the specification can define bit 
                 
                 <enc n="op2" v="0b101"/>
             </encoding>
-.```
+```
     
 the "info" script interprets the bit field definition with the range to generate:
     #define AARCH64_DBGBCR_0_EL1            __AARCH64_SYS_REG(0b10, 0b000, 0b0000, 0b0000, 0b101)
@@ -114,7 +114,7 @@ the index can be encoded acrros multiple elements for instance:
                 
                 <enc n="op2" v="m[2:0]"/>
             </encoding>
-.```
+```
 And the info script generates:
     #define AARCH64_AMEVTYPER1_0_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b000)
     #define AARCH64_AMEVTYPER1_1_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b001)
@@ -177,7 +177,7 @@ Currently this accessor is excluded (bad hack) from generation.
                 <enc n="op2" v="0b000"/>
             </encoding>
         </access_mechanism
-.```
+```
 
 ### AArch64-amevtyper0n_el0.xml
 
@@ -185,7 +185,7 @@ Define a range of 4 registers but define a 16 bit field to encode the index:
 ```xml
                 <enc n="CRm" v="0b011:m[3]"/>
                 <enc n="op2" v="m[2:0]"/>
- .```
+ ```
             
 ### Redundant specificaitons
 
