@@ -1,0 +1,176 @@
+#!/bin/bash
+
+FILE=$1
+
+if [ ! -e $FILE ]; then
+	echo "Could not find file $FILE" 1>&2
+	exit
+fi
+
+PROG=`
+echo "declare -A ACCESSOR"
+
+xmlstarlet select --text --template \
+	--match "/register_page/registers/register" \
+	-o "SHORT=\""  --value-of "reg_short_name"  -o "\"" -n \
+	-o "LONG=\""  --value-of "reg_long_name"  -o "\"" -n \
+	-o "ARRAY_START=\""  --value-of "reg_array/reg_array_start"  -o "\"" -n \
+	-o "ARRAY_END=\""  --value-of "reg_array/reg_array_end"  -o "\"" -n \
+	$FILE
+
+
+echo -n "IGNORE=\""
+xmlstarlet select --text --template \
+	--match "/register_page/registers/register/access_mechanisms/access_mechanism" --sort A:T:U "@accessor" \
+	-o "\"" -n -o "ACCESSOR[\"" --value-of "@accessor" -o ";" --value-of "encoding/acc_array/acc_array_range"  -o "\"]=\"" \
+	--match "encoding/enc" \
+	--value-of "@v" -o " " \
+	$FILE 
+echo "\""
+`
+
+eval "$PROG"
+
+function handle() 
+{
+	local FORMAT=$1
+	local VAR=$2
+	local M=$3
+	echo $FORMAT | grep $VAR > /dev/null 2>&1
+	if [ $? -ne 0 ]; then
+#cases  0b001
+		echo "$FORMAT"
+	else
+		if [ "${FORMAT:0:1}" == "$VAR" ]; then
+			set $(echo "$FORMAT" | sed 's/\]:0b/ - /' | tr '[:]' ' ')
+			if [ $# -eq 5 ]; then
+#cases m[2:0]:0b0 -> m 2 0 - 0
+				#echo "$FORMAT/0b${BINARY:((8-$2-1)):(($2-$3+1))}$5"
+				#echo "$FORMAT/$1/$2/$3/$4/$BINARY/0b${BINARY:((8-$2-1)):(($2-$3+1))}$5"
+				echo "0b${BINARY:((8-$2-1)):(($2-$3+1))}$5"
+			elif [ $# -eq 4 ]; then
+#cases  m[4]:0b01 -> m 4 - 01
+				#echo "$FORMAT/0b${BINARY:((8-$2-1)):1}$4"
+				#echo "$FORMAT/$1/$2/$3/$4/$BINARY/0b${BINARY:((8-$2-1)):1}$4"
+				echo "0b${BINARY:((8-$2-1)):1}$4"
+			else
+#cases m[3:0] -> m 3 0 
+				#echo "$FORMAT/0b${BINARY:((8-$2-1)):(($2-$3+1))}"
+				#echo "$FORMAT/$1/$2/$3/$4/$BINARY/0b${BINARY:((8-$2-1)):(($2-$3+1))}"
+				echo "0b${BINARY:((8-$2-1)):(($2-$3+1))}"
+			fi
+		else
+			set $(echo "$FORMAT" | tr '[:]' ' ')
+			if [ $# -eq 4 ]; then
+#cases  0b1:m[3-0]
+				#echo "$FORMAT/$1${BINARY:((8-$3-1)):(($3-$4+1))}"
+				#echo "$FORMAT/$1/$2/$3/$4/$BINARY/$1${BINARY:((8-$3-1)):(($3-$4+1))}"
+				echo "$1${BINARY:((8-$3-1)):(($3-$4+1))}"
+			else
+#cases 0b00:m[4]
+				#echo "$FORMAT/$1${BINARY:((8-$3-1)):1}"
+				#echo "$FORMAT/$1/$2/$3/$4/$BINARY/$1${BINARY:((8-$3-1)):1}"
+				echo "$1${BINARY:((8-$3-1)):1}"
+			fi
+		fi
+	fi
+}
+
+#the following register template is not to be generated
+if [ "$SHORT" == "S3_<op1>_<Cn>_<Cm>_<op2>" ]; then
+	exit
+fi
+
+HANDLED=""
+for accessor in "${!ACCESSOR[@]}"
+do
+	echo "$accessor" | egrep "MR[R]*S" > /dev/null
+	if [ $? -ne 0 ]; then
+		#this limits the dupplicates and avoid a problem on the ALLINT register
+		continue
+	fi
+	BASE=${accessor%;*}
+	BASE=${BASE##* }
+	RANGE=${accessor#*;}
+	if [ "$RANGE" == "" ]; then
+		# some specs contains accessors of other registers
+		# keep it if they are in the form of XXX_EL12 when SHORT is XXX_EL1
+		# discard it if XXX_EL1 is described in XXX_EL2 spec
+		# for instance ZCR_EL2
+		[[ $BASE == $SHORT* ]] || continue
+		echo $HANDLED | grep $BASE > /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			#don't handle twice the same register through different accessor
+			continue
+		fi
+		set ${ACCESSOR[$accessor]}
+		if [ ${#BASE} -lt 11 ]; then
+			TABS2="			"
+		else
+			TABS2="		"
+		fi
+		if [ ${#BASE} -lt 8 ]; then
+			TABS="			"
+		elif [ ${#BASE} -gt 15 ]; then
+			TABS="	"
+		else
+			TABS="		"
+		fi
+		echo "#define AARCH64_${BASE}_NAME${TABS2}\"${BASE}\""
+		echo "#define AARCH64_${BASE}_DESC${TABS2}\"${LONG}\""
+		echo "#define AARCH64_$BASE${TABS}__AARCH64_SYS_REG($1, $2, $3, $4, $5)"
+		HANDLED="$BASE $HANDLED"
+	else
+		set ${RANGE/-/ }
+		START=$1
+		END=$2
+		VAR=${BASE#*<}
+		VAR=${VAR%>*}
+		if [[ "$BASE" == "ICC_AP1R<m>_EL1" && "$SHORT" == "ICV_AP1R<n>_EL1" ]]; then
+			#probably a bug
+			BASE=${BASE/ICC/ICV}
+		elif [[ "$BASE" == "ICC_AP0R<m>_EL1" && "$SHORT" == "ICV_AP0R<n>_EL1" ]]; then
+			#probably a bug
+			BASE=${BASE/ICC/ICV}
+		fi
+		GEN="echo ${BASE/<$VAR>/'_${i}'}"
+		for ((i = ${START} ; i <= ${END} ; i++))
+		do
+			declare -a B
+			((B[0] = $i & 1 ))
+			((B[1] = ($i >> 1)  & 1 ))
+			((B[2] = ($i >> 2)  & 1 ))
+			((B[3] = ($i >> 3)  & 1 ))
+			((B[4] = ($i >> 4)  & 1 ))
+			((B[5] = ($i >> 5)  & 1 ))
+			((B[6] = ($i >> 6)  & 1 ))
+			((B[7] = ($i >> 7)  & 1 ))
+			BINARY=$(printf "%c%c%c%c%c%c%c%c" ${B[7]} ${B[6]} ${B[5]} ${B[4]} ${B[3]} ${B[2]} ${B[1]} ${B[0]} )
+			set ${ACCESSOR[$accessor]}
+			A1=$(handle $1 $VAR $BINARY)
+			A2=$(handle $2 $VAR $BINARY)
+			A3=$(handle $3 $VAR $BINARY)
+			A4=$(handle $4 $VAR $BINARY)
+			A5=$(handle $5 $VAR $BINARY)
+			REG=$(eval ${GEN})
+			if [ ${#REG} -gt 18 ]; then
+				TABS2="	"
+			elif [ ${#REG} -lt 11 ]; then
+				TABS2="			"
+			else
+				TABS2="		"
+			fi
+			if [ ${#REG} -lt 8 ]; then
+				TABS="			"
+			elif [ ${#REG} -gt 15 ]; then
+				TABS="	"
+			else
+				TABS="		"
+			fi
+			echo "#define AARCH64_${REG}_NAME${TABS2}\"${REG}\""
+			echo "#define AARCH64_${REG}_DESC${TABS2}\"${LONG} - $i\""
+			echo "#define AARCH64_${REG}${TABS}__AARCH64_SYS_REG($A1, $A2, $A3, $A4, $A5)"
+		done
+		
+	fi
+done #| sort -h | uniq | cut -d' ' -f2-
