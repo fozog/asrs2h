@@ -165,7 +165,7 @@ Currently this accessor is excluded (bad hack) from generation.
     <enc n="op2" v="0b000"/>
 </encoding>
 ```
-### AArch64-icv_ap1rn_el1.xml
+### AArch64-icv_ap1rn_el1.xml AArch64-icv_ap0rn_el1.xml
 
 I believe there is a bug as accessors refer to ICC... register and not ICV...
 
