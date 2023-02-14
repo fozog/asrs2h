@@ -46,23 +46,17 @@ compared to instruction encoding.
 For register templates, such as DBGBCR<m>_EL1, the specification can define bit fields:
 
 ```xml
-                <encoding>
-                
-                <acc_array var="m">
-                    <acc_array_range>0-15</acc_array_range>
-                </acc_array>
-                <access_instruction>MSR DBGBCR&lt;m&gt;_EL1, &lt;Xt&gt;</access_instruction>
-                
-                <enc n="op0" v="0b10"/>
-                
-                <enc n="op1" v="0b000"/>
-                
-                <enc n="CRn" v="0b0000"/>
-                
-                <enc n="CRm" v="m[3:0]"/>
-                
-                <enc n="op2" v="0b101"/>
-            </encoding>
+<encoding>
+    <acc_array var="m">
+        <acc_array_range>0-15</acc_array_range>
+    </acc_array>
+    <access_instruction>MSR DBGBCR&lt;m&gt;_EL1, &lt;Xt&gt;</access_instruction>
+    <enc n="op0" v="0b10"/>
+    <enc n="op1" v="0b000"/>
+    <enc n="CRn" v="0b0000"/>
+    <enc n="CRm" v="m[3:0]"/>
+    <enc n="op2" v="0b101"/>
+</encoding>
 ```
 
 The "info" script interprets the bit field definition with the range to generate:
@@ -101,42 +95,36 @@ There are several supported encoding values but it is not guaranteed that any ne
 
 the index can be encoded acrros multiple elements for instance:
 ```xml
-                <encoding>
-                
-                <acc_array var="m">
-                    <acc_array_range>0-15</acc_array_range>
-                </acc_array>
-                 <access_instruction>MRS &lt;Xt&gt;, AMEVCNTR1&lt;m&gt;_EL0</access_instruction>
-                
-                <enc n="op0" v="0b11"/>
-                
-                <enc n="op1" v="0b011"/>
-                
-                <enc n="CRn" v="0b1101"/>
-                
-                <enc n="CRm" v="0b110:m[3]"/>
-                
-                <enc n="op2" v="m[2:0]"/>
-            </encoding>
+<encoding>
+    <acc_array var="m">
+        <acc_array_range>0-15</acc_array_range>
+    </acc_array>
+    <access_instruction>MRS &lt;Xt&gt;, AMEVCNTR1&lt;m&gt;_EL0</access_instruction>
+    <enc n="op0" v="0b11"/>
+    <enc n="op1" v="0b011"/>
+    <enc n="CRn" v="0b1101"/>
+    <enc n="CRm" v="0b110:m[3]"/>
+    <enc n="op2" v="m[2:0]"/>
+</encoding>
 ```
 And the info script generates:
 ```C
-    #define AARCH64_AMEVTYPER1_0_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b000)
-    #define AARCH64_AMEVTYPER1_1_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b001)
-    #define AARCH64_AMEVTYPER1_2_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b010)
-    #define AARCH64_AMEVTYPER1_3_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b011)
-    #define AARCH64_AMEVTYPER1_4_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b100)
-    #define AARCH64_AMEVTYPER1_5_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b101)
-    #define AARCH64_AMEVTYPER1_6_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b110)
-    #define AARCH64_AMEVTYPER1_7_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b111)
-    #define AARCH64_AMEVTYPER1_8_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b000)
-    #define AARCH64_AMEVTYPER1_9_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b001)
-    #define AARCH64_AMEVTYPER1_10_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b010)
-    #define AARCH64_AMEVTYPER1_11_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b011)
-    #define AARCH64_AMEVTYPER1_12_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b100)
-    #define AARCH64_AMEVTYPER1_13_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b101)
-    #define AARCH64_AMEVTYPER1_14_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b110)
-    #define AARCH64_AMEVTYPER1_15_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b111)
+#define AARCH64_AMEVTYPER1_0_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b000)
+#define AARCH64_AMEVTYPER1_1_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b001)
+#define AARCH64_AMEVTYPER1_2_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b010)
+#define AARCH64_AMEVTYPER1_3_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b011)
+#define AARCH64_AMEVTYPER1_4_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b100)
+#define AARCH64_AMEVTYPER1_5_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b101)
+#define AARCH64_AMEVTYPER1_6_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b110)
+#define AARCH64_AMEVTYPER1_7_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b111)
+#define AARCH64_AMEVTYPER1_8_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b000)
+#define AARCH64_AMEVTYPER1_9_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b001)
+#define AARCH64_AMEVTYPER1_10_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b010)
+#define AARCH64_AMEVTYPER1_11_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b011)
+#define AARCH64_AMEVTYPER1_12_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b100)
+#define AARCH64_AMEVTYPER1_13_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b101)
+#define AARCH64_AMEVTYPER1_14_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b110)
+#define AARCH64_AMEVTYPER1_15_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b111)
 ```
     
 # Discussion on Arm system registers
@@ -166,29 +154,22 @@ I don't know what to think about the CRm encoding.
 Currently this accessor is excluded (bad hack) from generation.
 
 ```xml
-        <access_mechanism accessor="MSRimmediate ALLINT" type="SystemAccessor">
-            <encoding>
-            <access_instruction>MSR ALLINT, #&lt;imm&gt;</access_instruction>
-                
-                <enc n="op0" v="0b00"/>
-                
-                <enc n="op1" v="0b001"/>
-                
-                <enc n="CRn" v="0b0100"/>
-                
-                <enc n="CRm" v="0b000x"/>
-                
-                <enc n="op2" v="0b000"/>
-            </encoding>
-        </access_mechanism
+<encoding>
+    <access_instruction>MSR ALLINT, #&lt;imm&gt;</access_instruction>
+    <enc n="op0" v="0b00"/>
+    <enc n="op1" v="0b001"/>
+    <enc n="CRn" v="0b0100"/>
+    <enc n="CRm" v="0b000x"/>
+    <enc n="op2" v="0b000"/>
+</encoding>
 ```
 
 ### AArch64-amevtyper0n_el0.xml
 
 Define a range of 4 registers but define a 16 bit field to encode the index:
 ```xml
-                <enc n="CRm" v="0b011:m[3]"/>
-                <enc n="op2" v="m[2:0]"/>
+    <enc n="CRm" v="0b011:m[3]"/>
+    <enc n="op2" v="m[2:0]"/>
  ```
             
 ### Redundant specificaitons
