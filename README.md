@@ -64,8 +64,10 @@ For register templates, such as DBGBCR<m>_EL1, the specification can define bit 
                 <enc n="op2" v="0b101"/>
             </encoding>
 ```
-    
-the "info" script interprets the bit field definition with the range to generate:
+
+The "info" script interprets the bit field definition with the range to generate:
+
+```C
     #define AARCH64_DBGBCR_0_EL1            __AARCH64_SYS_REG(0b10, 0b000, 0b0000, 0b0000, 0b101)
     #define AARCH64_DBGBCR_1_EL1            __AARCH64_SYS_REG(0b10, 0b000, 0b0000, 0b0001, 0b101)
     #define AARCH64_DBGBCR_2_EL1            __AARCH64_SYS_REG(0b10, 0b000, 0b0000, 0b0010, 0b101)
@@ -88,6 +90,8 @@ the "info" script interprets the bit field definition with the range to generate
     #define AARCH64_DBGBCR_13_EL1           __AARCH64_SYS_REG(0b10, 0b000, 0b0000, 0b1101, 0b101)
     #define AARCH64_DBGBCR_14_EL1           __AARCH64_SYS_REG(0b10, 0b000, 0b0000, 0b1110, 0b101)
     #define AARCH64_DBGBCR_15_EL1           __AARCH64_SYS_REG(0b10, 0b000, 0b0000, 0b1111, 0b101)
+```
+
 
 There are several supported encoding values but it is not guaranteed that any new encoding will be supported:
     
@@ -116,6 +120,7 @@ the index can be encoded acrros multiple elements for instance:
             </encoding>
 ```
 And the info script generates:
+```C
     #define AARCH64_AMEVTYPER1_0_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b000)
     #define AARCH64_AMEVTYPER1_1_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b001)
     #define AARCH64_AMEVTYPER1_2_EL0        __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1110, 0b010)
@@ -132,8 +137,7 @@ And the info script generates:
     #define AARCH64_AMEVTYPER1_13_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b101)
     #define AARCH64_AMEVTYPER1_14_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b110)
     #define AARCH64_AMEVTYPER1_15_EL0       __AARCH64_SYS_REG(0b11, 0b011, 0b1101, 0b1111, 0b111)
-
-
+```
     
 # Discussion on Arm system registers
 
