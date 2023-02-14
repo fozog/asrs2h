@@ -116,9 +116,10 @@ do
 		else
 			TABS="		"
 		fi
+		echo "#define AARCH64_$BASE${TABS}__AARCH64_SYS_REG($1, $2, $3, $4, $5)"
 		echo "#define AARCH64_${BASE}_NAME${TABS2}\"${BASE}\""
 		echo "#define AARCH64_${BASE}_DESC${TABS2}\"${LONG}\""
-		echo "#define AARCH64_$BASE${TABS}__AARCH64_SYS_REG($1, $2, $3, $4, $5)"
+		echo ""
 		HANDLED="$BASE $HANDLED"
 	else
 		set ${RANGE/-/ }
@@ -167,10 +168,10 @@ do
 			else
 				TABS="		"
 			fi
+			echo "#define AARCH64_${REG}${TABS}__AARCH64_SYS_REG($A1, $A2, $A3, $A4, $A5)"
 			echo "#define AARCH64_${REG}_NAME${TABS2}\"${REG}\""
 			echo "#define AARCH64_${REG}_DESC${TABS2}\"${LONG} - $i\""
-			echo "#define AARCH64_${REG}${TABS}__AARCH64_SYS_REG($A1, $A2, $A3, $A4, $A5)"
 		done
-		
+		echo ""
 	fi
 done #| sort -h | uniq | cut -d' ' -f2-
