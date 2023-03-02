@@ -98,7 +98,8 @@ do
 		# discard it if XXX_EL1 is described in XXX_EL2 spec
 		# for instance ZCR_EL2
 		[[ $BASE == $SHORT* ]] || continue
-		echo $HANDLED | grep $BASE > /dev/null 2>&1
+		echo $HANDLED | grep ",$BASE" > /dev/null 2>&1
+		echo $HANDLED | grep "$BASE," > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			#don't handle twice the same register through different accessor
 			continue
@@ -120,7 +121,7 @@ do
 		echo "#define AARCH64_${BASE}_NAME${TABS2}\"${BASE}\""
 		echo "#define AARCH64_${BASE}_DESC${TABS2}\"${LONG}\""
 		echo ""
-		HANDLED="$BASE $HANDLED"
+		HANDLED="$BASE,$HANDLED"
 	else
 		set ${RANGE/-/ }
 		START=$1

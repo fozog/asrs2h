@@ -16,8 +16,8 @@ The scripts in the project transform the specifications into a C header.
 Assuming custom path covers the generate script and the current directory
 is where the specification files are
 
-    generate 'AArch64-*' > sys_regs.h
-    info AArch64-vbar-el1.xml
+    asr_generate 'AArch64-*' > aarch64_sysregs.h
+    asr_info AArch64-vbar-el1.xml
 
 ### headers
 
