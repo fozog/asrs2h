@@ -79,6 +79,14 @@ function handle()
 #the following register template is not to be generated
 if [ "$SHORT" == "S3_<op1>_<Cn>_<Cm>_<op2>" ]; then
 	exit
+elif [ "$SHORT" == "SP_EL3" ]; then
+	echo "// this is a fake register just to simplify emulation"
+	echo "// there are no MSR/MRS instruction for this register"
+	echo "// the encoding has been derived from SP_EL2 and checked with no clash"
+	echo "#define AARCH64_SP_EL3			__AARCH64_SYS_REG(0b11, 0b111, 0b0100, 0b0001, 0b000)"
+	echo "#define AARCH64_SP_EL3_NAME			\"SP_EL3\""
+	echo "#define AARCH64_SP_EL3_DESC			\"FAKE Stack Pointer (EL3)\""
+	exit
 fi
 
 HANDLED=""
@@ -87,7 +95,7 @@ do
 	echo "$accessor" | egrep "MR[R]*S" > /dev/null
 	if [ $? -ne 0 ]; then
 		#this limits the dupplicates and avoid a problem on the ALLINT register
-		continue
+		[[ $accessor != *OSLAR_EL1* ]] && continue
 	fi
 	BASE=${accessor%;*}
 	BASE=${BASE##* }
