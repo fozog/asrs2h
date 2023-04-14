@@ -95,7 +95,7 @@ do
 	echo "$accessor" | egrep "MR[R]*S" > /dev/null
 	if [ $? -ne 0 ]; then
 		#this limits the dupplicates and avoid a problem on the ALLINT register
-		[[ $accessor != *OSLAR_EL1* ]] && continue
+		[[ $accessor != *OSLAR_EL1* && $accessor != *ICC_EOI* ]] && continue
 	fi
 	BASE=${accessor%;*}
 	BASE=${BASE##* }
